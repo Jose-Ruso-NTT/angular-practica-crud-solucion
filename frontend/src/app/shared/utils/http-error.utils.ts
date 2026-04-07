@@ -5,6 +5,8 @@ export type BackendErrorCode =
   | 'CAR_DUPLICATE_LICENSE_PLATE'
   | 'CAR_DUPLICATE_BRAND_MODEL'
   | 'DOCUMENT_FILE_TOO_LARGE'
+  | 'DOCUMENT_FILE_REQUIRED'
+  | 'DOCUMENT_UNSUPPORTED_TYPE'
   | 'DOCUMENT_UPLOAD_ERROR';
 
 interface BackendErrorPayload {
@@ -16,6 +18,10 @@ interface BackendErrorPayload {
     licensePlate?: string;
     brandName?: string;
     modelName?: string;
+    maxFileSizeBytes?: number;
+    allowedMimeTypes?: string[];
+    allowedFormats?: string[];
+    receivedMimeType?: string;
     [key: string]: unknown;
   };
   licensePlate?: string;
@@ -108,6 +114,10 @@ function translateConflictMessage(payload: BackendErrorPayload): string | null {
 }
 
 function translateDocumentUploadMessage(payload: BackendErrorPayload): string | null {
+  if (payload.code === 'DOCUMENT_FILE_REQUIRED') {
+    return 'Selecciona un archivo antes de subirlo.';
+  }
+
   if (payload.code === 'DOCUMENT_FILE_TOO_LARGE') {
     const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
 
@@ -120,6 +130,18 @@ function translateDocumentUploadMessage(payload: BackendErrorPayload): string | 
 
   if (payload.code === 'DOCUMENT_UPLOAD_ERROR') {
     return 'No se ha podido procesar el archivo subido.';
+  }
+
+  if (payload.code === 'DOCUMENT_UNSUPPORTED_TYPE') {
+    const allowedFormats = getPayloadDetail(payload, 'allowedFormats');
+
+    if (Array.isArray(allowedFormats) && allowedFormats.every((format) => typeof format === 'string')) {
+      return `El tipo de archivo no es compatible. Formatos permitidos: ${allowedFormats
+        .map((format) => format.toUpperCase())
+        .join(', ')}.`;
+    }
+
+    return 'El tipo de archivo no es compatible. Usa un formato permitido.';
   }
 
   if (payload.statusCode === 415) {

@@ -34,6 +34,15 @@ const DOCUMENT_UPLOAD_ACCEPT = '.pdf,.txt,.doc,.docx,.png,.jpg,.jpeg';
 const DOCUMENT_UPLOAD_ALLOWED_TYPES_LABEL = 'PDF, TXT, DOC, DOCX, PNG, JPG o JPEG';
 const DOCUMENT_UPLOAD_MAX_SIZE_LABEL = '5 MB';
 const DOCUMENT_UPLOAD_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+const DOCUMENT_UPLOAD_ALLOWED_EXTENSIONS = new Set([
+  'pdf',
+  'txt',
+  'doc',
+  'docx',
+  'png',
+  'jpg',
+  'jpeg',
+]);
 
 @Component({
   selector: 'app-car-documents-section',
@@ -100,7 +109,13 @@ export class CarDocumentsSectionComponent {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
 
-    if (file && file.size > DOCUMENT_UPLOAD_MAX_SIZE_BYTES) {
+    if (!file) {
+      this.clearSelectedFile();
+      this.uploadError.set(null);
+      return;
+    }
+
+    if (file.size > DOCUMENT_UPLOAD_MAX_SIZE_BYTES) {
       this.clearSelectedFile();
       this.uploadError.set(
         `El archivo supera el tamaño máximo permitido de ${DOCUMENT_UPLOAD_MAX_SIZE_LABEL}.`,
@@ -109,8 +124,17 @@ export class CarDocumentsSectionComponent {
       return;
     }
 
+    if (!this.isAllowedFileType(file)) {
+      this.clearSelectedFile();
+      this.uploadError.set(
+        `El tipo de archivo no es compatible. Usa uno de estos formatos: ${DOCUMENT_UPLOAD_ALLOWED_TYPES_LABEL}.`,
+      );
+      input.value = '';
+      return;
+    }
+
     this.selectedFile.set(file);
-    this.selectedFileName.set(file?.name ?? null);
+    this.selectedFileName.set(file.name);
     this.uploadError.set(null);
   }
 
@@ -243,6 +267,18 @@ export class CarDocumentsSectionComponent {
       documentType: 'other',
       description: '',
     });
+  }
+
+  private isAllowedFileType(file: File): boolean {
+    const extension = this.getFileExtension(file.name);
+
+    return !!extension && DOCUMENT_UPLOAD_ALLOWED_EXTENSIONS.has(extension);
+  }
+
+  private getFileExtension(fileName: string): string | null {
+    const extension = fileName.split('.').pop()?.trim().toLowerCase();
+
+    return extension && extension !== fileName.toLowerCase() ? extension : null;
   }
 
   private clearSelectedFile(): void {
