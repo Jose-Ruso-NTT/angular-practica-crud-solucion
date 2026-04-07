@@ -12,13 +12,15 @@
       </p>
     </div>
 
-    @if (car()!.carDetails?.[0]?.imageUrl) {
+    @if (car()!.carDetails?.[0]?.imageUrl; as imageUrl) {
       <div
-        class="aspect-video overflow-hidden rounded-3xl bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+        class="relative aspect-video overflow-hidden rounded-3xl bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
       >
         <img
-          [src]="car()!.carDetails?.[0]?.imageUrl"
+          [ngSrc]="imageUrl"
           [alt]="car()!.model.name"
+          fill
+          priority
           class="h-full w-full object-cover object-center"
         />
       </div>

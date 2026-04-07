@@ -1,4 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
+import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -59,6 +60,7 @@ import {
     InlineMessageComponent,
     ButtonDirective,
     SortableColumnHeaderComponent,
+    NgOptimizedImage,
   ],
   templateUrl: './car-list.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

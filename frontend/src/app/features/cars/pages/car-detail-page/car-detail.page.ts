@@ -15,16 +15,16 @@ import {
   RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
-import { of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 import { FeedbackStore } from '@core/stores/feedback.store';
+import { CarsApiService } from '@features/cars/services/cars-api.service';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog.component';
 import { InlineMessageComponent } from '@shared/components/inline-message.component';
 import { ButtonDirective } from '@shared/directives/button-directive';
 import { IfAdminDirective } from '@shared/directives/if-admin-directive';
 import { Car } from '@shared/models/car.models';
 import { getHttpErrorMessage } from '@shared/utils/http-error.utils';
-import { CarsApiService } from '@features/cars/services/cars-api.service';
+import { of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-car-detail-page',

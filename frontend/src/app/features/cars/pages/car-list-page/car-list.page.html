@@ -234,14 +234,13 @@
                   <div class="flex items-center gap-4">
                     @if (car.imageUrl) {
                       <div
-                        class="h-14 w-20 min-w-20 flex-none overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                        class="relative h-14 w-20 min-w-20 flex-none overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-700 dark:bg-slate-800"
                       >
                         <img
-                          [src]="car.imageUrl"
+                          [ngSrc]="car.imageUrl"
                           [alt]="car.model.name"
-                          class="h-full w-full object-cover [image-rendering:auto]"
-                          loading="lazy"
-                          decoding="async"
+                          fill
+                          class="object-cover [image-rendering:auto]"
                         />
                       </div>
                     } @else {
@@ -310,13 +309,13 @@
           <article
             class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/70 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60"
           >
-            @if (car.imageUrl) {
-              <div class="aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-800">
+            @if (car.imageUrl; as imageUrl) {
+              <div class="relative aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-800">
                 <img
-                  [src]="car.imageUrl"
+                  [ngSrc]="imageUrl"
                   [alt]="car.brand.name + ' ' + car.model.name"
+                  fill
                   class="h-full w-full object-cover object-center"
-                  loading="lazy"
                   decoding="async"
                 />
               </div>

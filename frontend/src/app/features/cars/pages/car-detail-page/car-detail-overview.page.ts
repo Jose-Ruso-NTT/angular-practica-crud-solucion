@@ -1,4 +1,10 @@
-import { CurrencyPipe, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
+import {
+  CurrencyPipe,
+  DatePipe,
+  DecimalPipe,
+  NgOptimizedImage,
+  TitleCasePipe,
+} from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonDirective } from '@shared/directives/button-directive';
@@ -6,7 +12,15 @@ import { CarDetailPage } from '@features/cars/pages/car-detail-page/car-detail.p
 
 @Component({
   selector: 'app-car-detail-overview-page',
-  imports: [RouterLink, ButtonDirective, CurrencyPipe, DatePipe, DecimalPipe, TitleCasePipe],
+  imports: [
+    RouterLink,
+    ButtonDirective,
+    CurrencyPipe,
+    DatePipe,
+    DecimalPipe,
+    TitleCasePipe,
+    NgOptimizedImage,
+  ],
   templateUrl: './car-detail-overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
