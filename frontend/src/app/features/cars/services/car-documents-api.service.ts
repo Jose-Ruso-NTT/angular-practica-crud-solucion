@@ -9,11 +9,11 @@ export class CarDocumentsApiService {
   private readonly http = inject(HttpClient);
 
   getDocument(id: string): Observable<CarDocument> {
-    return this.http.get<CarDocument>(`${API_BASE_URL}/cars/${id}/documents`);
+    return this.http.get<CarDocument>(`${API_BASE_URL}/cars/${id}/document`);
   }
 
   downloadDocument(id: string): Observable<Blob> {
-    return this.http.get(`${API_BASE_URL}/cars/${id}/documents/download`, {
+    return this.http.get(`${API_BASE_URL}/cars/${id}/document/download`, {
       responseType: 'blob',
     });
   }
@@ -34,10 +34,10 @@ export class CarDocumentsApiService {
       formData.append('description', payload.description.trim());
     }
 
-    return this.http.post<CarDocument>(`${API_BASE_URL}/cars/${id}/documents`, formData);
+    return this.http.post<CarDocument>(`${API_BASE_URL}/cars/${id}/document`, formData);
   }
 
   deleteDocument(id: string): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/cars/${id}/documents`);
+    return this.http.delete<void>(`${API_BASE_URL}/cars/${id}/document`);
   }
 }

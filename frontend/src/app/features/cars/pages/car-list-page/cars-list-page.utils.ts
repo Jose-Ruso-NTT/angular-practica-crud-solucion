@@ -21,8 +21,8 @@ export type PaginationItem = number | 'ellipsis';
 export type CarsListQueryParams = Record<string, string | number | boolean>;
 
 export const VISIBLE_SORT_OPTIONS: SortOption[] = [
-  { value: 'brandId', label: 'Marca' },
-  { value: 'modelId', label: 'Modelo' },
+  { value: 'brand', label: 'Marca' },
+  { value: 'model', label: 'Modelo' },
   { value: 'total', label: 'Total' },
 ];
 

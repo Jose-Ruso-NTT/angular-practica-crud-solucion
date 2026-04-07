@@ -42,7 +42,7 @@
           <span
             class="shrink-0 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-white uppercase dark:bg-teal-500 dark:text-slate-950"
           >
-            {{ document()!.documentType | titlecase }}
+            {{ document()!.documentType | carDocumentTypeLabel }}
           </span>
         </div>
 
@@ -150,7 +150,7 @@
         <label class="form-label" for="document-type">Tipo documental</label>
         <select id="document-type" formControlName="documentType" class="form-control">
           @for (type of documentTypes; track type) {
-            <option [value]="type">{{ type }}</option>
+            <option [value]="type">{{ type | carDocumentTypeLabel }}</option>
           }
         </select>
       </div>

@@ -1,8 +1,8 @@
 import { PaginatedResponse } from '@shared/models/pagination.models';
 
 export const CAR_SORT_FIELDS = [
-  'brandId',
-  'modelId',
+  'brand',
+  'model',
   'total',
   'price',
   'manufactureYear',
@@ -19,6 +19,14 @@ export const CAR_DOCUMENT_TYPES = [
   'registration',
   'other',
 ] as const;
+
+export const CAR_DOCUMENT_TYPE_LABELS: Record<(typeof CAR_DOCUMENT_TYPES)[number], string> = {
+  invoice: 'Factura',
+  inspection: 'Inspeccion',
+  insurance: 'Seguro',
+  registration: 'Documentacion',
+  other: 'Otro',
+};
 
 export const CAR_CURRENCIES = [
   'EUR',

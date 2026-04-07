@@ -1,6 +1,4 @@
 import {
-  HttpBackend,
-  HttpClient,
   HttpContextToken,
   HttpErrorResponse,
   HttpInterceptorFn,
@@ -11,7 +9,6 @@ import { catchError, switchMap, throwError } from 'rxjs';
 import { API_BASE_URL } from '@core/config/api.config';
 import { AuthStore } from '@core/stores/auth.store';
 import { FeedbackStore } from '@core/stores/feedback.store';
-import { LoginResponse } from '@shared/models/auth.models';
 
 const RETRY_AFTER_REFRESH = new HttpContextToken<boolean>(() => false);
 
@@ -21,8 +18,6 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authStore = inject(AuthStore);
   const feedbackStore = inject(FeedbackStore);
-  const httpBackend = inject(HttpBackend);
-  const rawHttp = new HttpClient(httpBackend);
 
   const isApiRequest = req.url.startsWith(API_BASE_URL);
   const isSessionEndpoint = AUTH_SESSION_PATHS.some((path) => req.url.includes(path));
@@ -41,12 +36,10 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      return rawHttp
-        .post<LoginResponse>(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true })
+      return authStore
+        .refreshSession()
         .pipe(
-          switchMap((response) => {
-            authStore.setUser(response.user);
-
+          switchMap(() => {
             return next(
               req.clone({
                 context: req.context.set(RETRY_AFTER_REFRESH, true),

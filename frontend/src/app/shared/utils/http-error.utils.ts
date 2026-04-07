@@ -107,6 +107,38 @@ function translateConflictMessage(payload: BackendErrorPayload): string | null {
   return null;
 }
 
+function translateDocumentUploadMessage(payload: BackendErrorPayload): string | null {
+  if (payload.code === 'DOCUMENT_FILE_TOO_LARGE') {
+    const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
+
+    if (typeof maxFileSizeBytes === 'number') {
+      return `El archivo supera el tamaño máximo permitido de ${formatFileSize(maxFileSizeBytes)}.`;
+    }
+
+    return 'El archivo supera el tamaño máximo permitido.';
+  }
+
+  if (payload.code === 'DOCUMENT_UPLOAD_ERROR') {
+    return 'No se ha podido procesar el archivo subido.';
+  }
+
+  if (payload.statusCode === 415) {
+    return 'El tipo de archivo no es compatible. Usa un formato permitido.';
+  }
+
+  if (payload.statusCode === 413) {
+    const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
+
+    if (typeof maxFileSizeBytes === 'number') {
+      return `El archivo supera el tamaño máximo permitido de ${formatFileSize(maxFileSizeBytes)}.`;
+    }
+
+    return 'El archivo supera el tamaño máximo permitido.';
+  }
+
+  return null;
+}
+
 export function getHttpErrorPayload(error: unknown): BackendErrorPayload | null {
   if (!(error instanceof HttpErrorResponse)) {
     return null;
@@ -147,6 +179,14 @@ export function getHttpErrorMessage(
 
   if (translatedConflictMessage) {
     return translatedConflictMessage;
+  }
+
+  const translatedDocumentUploadMessage = backendPayload
+    ? translateDocumentUploadMessage(backendPayload)
+    : null;
+
+  if (translatedDocumentUploadMessage) {
+    return translatedDocumentUploadMessage;
   }
 
   const backendMessage = extractBackendMessage(error.error);

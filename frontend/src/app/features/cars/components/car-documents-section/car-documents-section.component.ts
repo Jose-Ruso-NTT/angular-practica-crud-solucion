@@ -1,5 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { DatePipe, TitleCasePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,6 +19,7 @@ import { ConfirmDialogComponent } from '@shared/components/confirm-dialog.compon
 import { InlineMessageComponent } from '@shared/components/inline-message.component';
 import { ButtonDirective } from '@shared/directives/button-directive';
 import { IfAdminDirective } from '@shared/directives/if-admin-directive';
+import { CarDocumentTypeLabelPipe } from '@shared/pipes/car-document-type-label.pipe';
 import { CAR_DOCUMENT_TYPES, CarDocument, CarDocumentType } from '@shared/models/car.models';
 import { formatBytes } from '@shared/utils/date.utils';
 import { downloadBlob } from '@shared/utils/file-download.utils';
@@ -42,8 +43,8 @@ const DOCUMENT_UPLOAD_MAX_SIZE_BYTES = 5 * 1024 * 1024;
     IfAdminDirective,
     InlineMessageComponent,
     DatePipe,
-    TitleCasePipe,
     UpperCasePipe,
+    CarDocumentTypeLabelPipe,
   ],
   templateUrl: './car-documents-section.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
