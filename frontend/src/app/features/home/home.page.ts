@@ -15,17 +15,17 @@ import { IfAdminDirective } from '@shared/directives/if-admin-directive';
         <p
           class="text-xs font-semibold tracking-[0.24em] text-teal-700 uppercase dark:text-teal-300"
         >
-          Proyecto de formación
+          Proyecto de formacion
         </p>
         <h2
           class="mt-3 max-w-2xl text-4xl font-semibold tracking-tight text-slate-950 dark:text-white"
         >
-          Una base Angular 21 limpia, didáctica y preparada para explicar decisiones reales.
+          Una base Angular 21 limpia, didactica y preparada para explicar decisiones reales.
         </h2>
         <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
-          La aplicación trabaja contra el backend del repositorio, usa autenticación JWT,
-          formularios reactivos, estados claros y una estructura pensada para enseñar sin
-          sobreingenieria.
+          La aplicacion trabaja contra el backend del repositorio, usa autenticacion por sesion
+          con cookies HttpOnly, formularios reactivos, estados claros y una estructura pensada
+          para ensenar sin sobreingenieria.
         </p>
 
         <div class="mt-8 flex flex-wrap gap-3">
@@ -46,7 +46,7 @@ import { IfAdminDirective } from '@shared/directives/if-admin-directive';
       <aside
         class="rounded-4xl border border-slate-200 bg-slate-950 p-8 text-slate-50 shadow-sm dark:border-slate-800 dark:bg-slate-900"
       >
-        <p class="text-xs font-semibold tracking-[0.24em] text-teal-300 uppercase">Sesión actual</p>
+        <p class="text-xs font-semibold tracking-[0.24em] text-teal-300 uppercase">Sesion actual</p>
         <h3 class="mt-3 text-2xl font-semibold">{{ authStore.user()?.name }}</h3>
         <p class="mt-2 text-sm text-slate-300">{{ authStore.user()?.email }}</p>
         <div

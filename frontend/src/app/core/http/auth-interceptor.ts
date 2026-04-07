@@ -1,20 +1,14 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthStore } from '@core/stores/auth.store';
+import { API_BASE_URL } from '@core/config/api.config';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authStore = inject(AuthStore);
-  const token = authStore.token();
-
-  if (!token) {
+  if (!req.url.startsWith(API_BASE_URL) || req.withCredentials) {
     return next(req);
   }
 
   return next(
     req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      withCredentials: true,
     }),
   );
 };

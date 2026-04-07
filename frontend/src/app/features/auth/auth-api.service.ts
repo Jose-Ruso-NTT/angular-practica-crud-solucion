@@ -9,10 +9,34 @@ export class AuthApiService {
   private readonly http = inject(HttpClient);
 
   login(payload: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_BASE_URL}/auth/login`, payload);
+    return this.http.post<LoginResponse>(`${API_BASE_URL}/auth/login`, payload, {
+      withCredentials: true,
+    });
   }
 
   me(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${API_BASE_URL}/auth/me`);
+    return this.http.get<UserProfile>(`${API_BASE_URL}/auth/me`, {
+      withCredentials: true,
+    });
+  }
+
+  refresh(): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `${API_BASE_URL}/auth/refresh`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(
+      `${API_BASE_URL}/auth/logout`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
   }
 }
