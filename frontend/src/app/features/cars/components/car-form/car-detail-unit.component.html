@@ -1,0 +1,140 @@
+<fieldset
+  class="space-y-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-900/75"
+  [formGroup]="group()"
+>
+  <div class="flex items-center justify-between gap-4">
+    <legend class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+      Unidad {{ index() + 1 }}
+    </legend>
+    @if (canRemove()) {
+      <button
+        type="button"
+        appButton="ghost"
+        appButtonSize="xs"
+        class="text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-200"
+        (click)="remove.emit()"
+      >
+        Quitar
+      </button>
+    }
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div class="space-y-2">
+      <label class="form-label" [for]="'registration-date-' + index()"
+        >Fecha de matriculación</label
+      >
+      <input
+        [id]="'registration-date-' + index()"
+        type="datetime-local"
+        formControlName="registrationDate"
+        class="form-control"
+      />
+      <app-form-field-errors
+        [control]="group().controls.registrationDate"
+        [messages]="detailErrorMessages.registrationDate"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="form-label" [for]="'manufacture-year-' + index()">Año de fabricación</label>
+      <input
+        [id]="'manufacture-year-' + index()"
+        type="number"
+        formControlName="manufactureYear"
+        class="form-control"
+        step="1"
+        inputmode="numeric"
+      />
+      <app-form-field-errors
+        [control]="group().controls.manufactureYear"
+        [messages]="detailErrorMessages.manufactureYear"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="form-label" [for]="'mileage-' + index()">Kilometraje</label>
+      <input
+        [id]="'mileage-' + index()"
+        type="number"
+        formControlName="mileage"
+        class="form-control"
+      />
+      <app-form-field-errors
+        [control]="group().controls.mileage"
+        [messages]="detailErrorMessages.mileage"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="form-label" [for]="'price-' + index()">Precio</label>
+      <input [id]="'price-' + index()" type="number" formControlName="price" class="form-control" />
+      <app-form-field-errors
+        [control]="group().controls.price"
+        [messages]="detailErrorMessages.price"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="form-label" [for]="'currency-' + index()">Moneda</label>
+      <select [id]="'currency-' + index()" formControlName="currency" class="form-control">
+        @for (currency of currencies(); track currency) {
+          <option [value]="currency">{{ currency }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="space-y-2">
+      <label class="form-label" [for]="'license-plate-' + index()">Matrícula</label>
+      <input
+        [id]="'license-plate-' + index()"
+        type="text"
+        formControlName="licensePlate"
+        class="form-control uppercase"
+        [class.form-control-error]="showLicensePlateError()"
+      />
+      <app-form-field-errors
+        [control]="group().controls.licensePlate"
+        [messages]="detailErrorMessages.licensePlate"
+      />
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="space-y-2">
+      <label class="form-label" [for]="'color-' + index()">Color</label>
+      <input [id]="'color-' + index()" type="text" formControlName="color" class="form-control" />
+    </div>
+
+    <div class="space-y-2">
+      <label class="form-label" [for]="'availability-' + index()">Disponibilidad</label>
+      <label
+        class="flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+      >
+        <input
+          [id]="'availability-' + index()"
+          type="checkbox"
+          formControlName="availability"
+          class="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 dark:border-slate-600 dark:bg-slate-950 dark:text-teal-400 dark:focus:ring-teal-400"
+        />
+        Disponible para la venta
+      </label>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <label class="form-label" [for]="'description-' + index()">Descripción</label>
+    <textarea
+      [id]="'description-' + index()"
+      rows="4"
+      formControlName="description"
+      class="form-control"
+    ></textarea>
+    <app-form-field-errors
+      [control]="group().controls.description"
+      [messages]="detailErrorMessages.description"
+    />
+  </div>
+
+  <app-form-field-errors [control]="group()" [messages]="detailGroupErrorMessages" />
+</fieldset>

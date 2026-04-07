@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NotificationCenterComponent } from '@shared/components/notification-center.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [RouterOutlet, NotificationCenterComponent],
+  template: `
+    <router-outlet />
+    <app-notification-center />
+  `,
 })
-export class App {
-  protected readonly title = signal('frontend');
-}
+export class App {}

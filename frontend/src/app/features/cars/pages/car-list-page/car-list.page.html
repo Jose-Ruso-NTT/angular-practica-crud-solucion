@@ -1,0 +1,547 @@
+<section class="space-y-6">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-[0.24em] text-teal-700 uppercase dark:text-teal-300">
+        Catálogo
+      </p>
+      <h2 class="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
+        Listado de coches
+      </h2>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        Esta vista sirve para practicar filtros, ordenación, paginación y acciones sobre una tabla
+        conectada al backend.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <button
+        type="button"
+        appButton="secondary"
+        [appButtonLoading]="exporting()"
+        [disabled]="exporting()"
+        (click)="exportCurrentView()"
+      >
+        {{ exporting() ? 'Exportando...' : 'Exportar Excel' }}
+      </button>
+      <a *appIfAdmin routerLink="/cars/new" queryParamsHandling="preserve" appButton="primary">
+        Nuevo coche
+      </a>
+    </div>
+  </div>
+
+  <form
+    class="space-y-5 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70"
+    [formGroup]="filtersForm"
+  >
+    <div
+      class="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800"
+    >
+      <div>
+        <h3 class="text-lg font-semibold text-slate-950 dark:text-white">Filtros</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Ajusta la búsqueda por marca y modelo.
+        </p>
+      </div>
+
+      <button type="button" appButton="secondary" appButtonSize="sm" (click)="resetFilters()">
+        Limpiar filtros
+      </button>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-2">
+        <label class="form-label" for="cars-brand-filter">Marca</label>
+        <select id="cars-brand-filter" formControlName="brandId" class="form-control">
+          <option value="">Todas</option>
+          @for (brand of catalogStore.brands(); track brand.id) {
+            <option [value]="brand.id">{{ brand.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="form-label" for="cars-model-filter">Modelo</label>
+        <select id="cars-model-filter" formControlName="modelId" class="form-control">
+          <option value="">Todos</option>
+          @for (model of currentModels(); track model.id) {
+            <option [value]="model.id">{{ model.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </form>
+
+  @if (errorMessage()) {
+    <app-inline-message
+      tone="error"
+      [message]="errorMessage()!"
+      actionLabel="Reintentar"
+      (action)="reload()"
+    />
+  }
+
+  <section
+    class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950/70"
+  >
+    <div
+      class="flex flex-col gap-4 border-b border-slate-200 px-6 py-4 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800"
+    >
+      <div class="max-w-2xl">
+        <h3 class="text-lg font-semibold text-slate-950 dark:text-white">Resultados</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          @if (carsResponse()) {
+            {{ getResultsSummary() }}
+          } @else {
+            Esperando datos...
+          }
+        </p>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          La tabla conserva filtros en la URL para que sea fácil revisar estados y compartir el
+          listado actual.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 sm:justify-end">
+        <div
+          class="inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-900"
+          role="group"
+          aria-label="Cambiar vista del listado"
+        >
+          <button
+            type="button"
+            class="rounded-full px-3 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none dark:focus-visible:ring-teal-700 dark:focus-visible:ring-offset-slate-950"
+            [class.bg-white]="viewMode() === 'table'"
+            [class.text-slate-950]="viewMode() === 'table'"
+            [class.shadow-sm]="viewMode() === 'table'"
+            [class.dark:bg-slate-800]="viewMode() === 'table'"
+            [class.dark:text-white]="viewMode() === 'table'"
+            [class.text-slate-500]="viewMode() !== 'table'"
+            [class.hover:text-slate-700]="viewMode() !== 'table'"
+            [class.dark:text-slate-400]="viewMode() !== 'table'"
+            [class.dark:hover:text-slate-200]="viewMode() !== 'table'"
+            [attr.aria-pressed]="viewMode() === 'table'"
+            aria-label="Mostrar como tabla"
+            (click)="setViewMode('table')"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 20 20"
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.6"
+            >
+              <rect x="3" y="4" width="14" height="12" rx="2" />
+              <path d="M3 8h14" />
+              <path d="M8 8v8" />
+              <path d="M13 8v8" />
+            </svg>
+            <span class="sr-only">Tabla</span>
+          </button>
+          <button
+            type="button"
+            class="rounded-full px-3 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none dark:focus-visible:ring-teal-700 dark:focus-visible:ring-offset-slate-950"
+            [class.bg-white]="viewMode() === 'cards'"
+            [class.text-slate-950]="viewMode() === 'cards'"
+            [class.shadow-sm]="viewMode() === 'cards'"
+            [class.dark:bg-slate-800]="viewMode() === 'cards'"
+            [class.dark:text-white]="viewMode() === 'cards'"
+            [class.text-slate-500]="viewMode() !== 'cards'"
+            [class.hover:text-slate-700]="viewMode() !== 'cards'"
+            [class.dark:text-slate-400]="viewMode() !== 'cards'"
+            [class.dark:hover:text-slate-200]="viewMode() !== 'cards'"
+            [attr.aria-pressed]="viewMode() === 'cards'"
+            aria-label="Mostrar como tarjetas"
+            (click)="setViewMode('cards')"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 20 20"
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.6"
+            >
+              <rect x="3" y="3" width="5" height="5" rx="1.2" />
+              <rect x="12" y="3" width="5" height="5" rx="1.2" />
+              <rect x="3" y="12" width="5" height="5" rx="1.2" />
+              <rect x="12" y="12" width="5" height="5" rx="1.2" />
+            </svg>
+            <span class="sr-only">Cards</span>
+          </button>
+        </div>
+
+        @if (loading()) {
+          <span class="text-sm font-medium text-teal-700 dark:text-teal-300">Cargando...</span>
+        }
+      </div>
+    </div>
+
+    @if (!loading() && carsResponse()?.items?.length === 0) {
+      <div class="px-6 py-12 text-center">
+        <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          No hay coches para los filtros actuales.
+        </p>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          Prueba a limpiar filtros o a crear una entrada nueva.
+        </p>
+      </div>
+    } @else if (viewMode() === 'table') {
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+          <thead class="bg-slate-50 dark:bg-slate-900/80">
+            <tr
+              class="text-left text-xs font-semibold tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400"
+            >
+              <th class="px-6 py-4">Vehículo</th>
+              <th class="px-6 py-4">
+                <app-sortable-column-header
+                  label="Marca"
+                  [ariaLabel]="getSortAriaLabel('brandId', 'Marca')"
+                  [indicator]="getSortIndicator('brandId')"
+                  (sort)="toggleSort('brandId')"
+                />
+              </th>
+              <th class="px-6 py-4">
+                <app-sortable-column-header
+                  label="Modelo"
+                  [ariaLabel]="getSortAriaLabel('modelId', 'Modelo')"
+                  [indicator]="getSortIndicator('modelId')"
+                  (sort)="toggleSort('modelId')"
+                />
+              </th>
+              <th class="px-6 py-4">
+                <app-sortable-column-header
+                  label="Total"
+                  [ariaLabel]="getSortAriaLabel('total', 'Total')"
+                  [indicator]="getSortIndicator('total')"
+                  (sort)="toggleSort('total')"
+                />
+              </th>
+              <th class="px-6 py-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody
+            class="divide-y divide-slate-100 text-sm text-slate-700 dark:divide-slate-800 dark:text-slate-300"
+          >
+            @for (car of carsResponse()?.items ?? []; track car.id) {
+              <tr class="align-top dark:hover:bg-slate-900/40">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-4">
+                    @if (car.imageUrl) {
+                      <div
+                        class="h-14 w-20 min-w-20 flex-none overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                      >
+                        <img
+                          [src]="car.imageUrl"
+                          [alt]="car.model.name"
+                          class="h-full w-full object-cover [image-rendering:auto]"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    } @else {
+                      <div
+                        class="flex h-14 w-20 min-w-20 flex-none items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                      >
+                        Sin imagen
+                      </div>
+                    }
+                    <div class="min-w-0">
+                      <p class="font-semibold text-slate-950 dark:text-slate-100">
+                        {{ car.id.slice(0, 8) }}
+                      </p>
+                      <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Identificador interno
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">{{ car.brand.name }}</td>
+                <td class="px-6 py-4">
+                  {{ car.model.name }}
+                </td>
+                <td class="px-6 py-4">{{ car.total ?? 0 }}</td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-wrap gap-2">
+                    <a
+                      [routerLink]="['/cars', car.id, 'overview']"
+                      queryParamsHandling="preserve"
+                      appButton="secondary"
+                      appButtonSize="xs"
+                      class="tracking-[0.14em] uppercase"
+                    >
+                      Ver
+                    </a>
+                    <a
+                      *appIfAdmin
+                      [routerLink]="['/cars', car.id, 'edit']"
+                      queryParamsHandling="preserve"
+                      appButton="secondary"
+                      appButtonSize="xs"
+                      class="tracking-[0.14em] uppercase"
+                    >
+                      Editar
+                    </a>
+                    <button
+                      *appIfAdmin
+                      type="button"
+                      appButton="danger-secondary"
+                      appButtonSize="xs"
+                      class="tracking-[0.14em] uppercase"
+                      (click)="deleteCar(car)"
+                    >
+                      Borrar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
+        @for (car of carsResponse()?.items ?? []; track car.id) {
+          <article
+            class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/70 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60"
+          >
+            @if (car.imageUrl) {
+              <div class="aspect-4/3 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img
+                  [src]="car.imageUrl"
+                  [alt]="car.brand.name + ' ' + car.model.name"
+                  class="h-full w-full object-cover object-center"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            } @else {
+              <div
+                class="flex h-52 items-center justify-center bg-slate-100 text-sm font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+              >
+                Sin imagen
+              </div>
+            }
+
+            <div class="flex flex-1 flex-col gap-5 p-5">
+              <div class="space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p
+                      class="text-xs font-semibold tracking-[0.24em] text-teal-700 uppercase dark:text-teal-300"
+                    >
+                      {{ car.brand.name }}
+                    </p>
+                    <h4 class="mt-2 text-xl font-semibold text-slate-950 dark:text-white">
+                      {{ car.model.name }}
+                    </h4>
+                  </div>
+
+                  <span
+                    class="inline-flex rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 dark:bg-slate-950 dark:text-slate-200 dark:ring-slate-700"
+                  >
+                    Total {{ car.total ?? 0 }}
+                  </span>
+                </div>
+
+                <div
+                  class="rounded-2xl bg-white/80 p-4 ring-1 ring-slate-200 dark:bg-slate-950/70 dark:ring-slate-800"
+                >
+                  <p
+                    class="text-xs font-medium tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400"
+                  >
+                    Identificador
+                  </p>
+                  <p class="mt-2 font-mono text-sm text-slate-700 dark:text-slate-200">
+                    {{ car.id }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-auto flex flex-wrap gap-2">
+                <a
+                  [routerLink]="['/cars', car.id, 'overview']"
+                  queryParamsHandling="preserve"
+                  appButton="secondary"
+                  appButtonSize="xs"
+                  class="tracking-[0.14em] uppercase"
+                >
+                  Ver
+                </a>
+                <a
+                  *appIfAdmin
+                  [routerLink]="['/cars', car.id, 'edit']"
+                  queryParamsHandling="preserve"
+                  appButton="secondary"
+                  appButtonSize="xs"
+                  class="tracking-[0.14em] uppercase"
+                >
+                  Editar
+                </a>
+                <button
+                  *appIfAdmin
+                  type="button"
+                  appButton="danger-secondary"
+                  appButtonSize="xs"
+                  class="tracking-[0.14em] uppercase"
+                  (click)="deleteCar(car)"
+                >
+                  Borrar
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    @if (carsResponse()) {
+      <div
+        class="flex flex-col gap-4 border-t border-slate-200 px-6 py-5 lg:flex-row lg:items-center lg:justify-between dark:border-slate-800"
+      >
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
+            Pagina {{ carsResponse()!.meta.currentPage }} de
+            {{ carsResponse()!.meta.totalPages }}
+          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            {{ getResultsRangeLabel() }}
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+          <div class="flex items-center gap-3">
+            <label for="cars-page-size" class="form-label"> Resultados por página </label>
+            <select
+              id="cars-page-size"
+              [formControl]="filtersForm.controls.limit"
+              class="form-control w-auto py-2"
+            >
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+            </select>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              appButton="secondary"
+              appButtonSize="icon"
+              aria-label="Ir a la primera pagina"
+              [disabled]="!carsResponse()!.meta.hasPreviousPage"
+              (click)="goToPage(1)"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              >
+                <path d="M11 5 6 10l5 5" />
+                <path d="M15 5 10 10l5 5" />
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              appButton="secondary"
+              appButtonSize="icon"
+              aria-label="Ir a la pagina anterior"
+              [disabled]="!carsResponse()!.meta.hasPreviousPage"
+              (click)="goToPage(carsResponse()!.meta.currentPage - 1)"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              >
+                <path d="M12.5 5 7.5 10l5 5" />
+              </svg>
+            </button>
+
+            @for (pageItem of paginationItems(); track $index) {
+              @if (pageItem === 'ellipsis') {
+                <span class="px-2 text-sm font-semibold text-slate-400 dark:text-slate-500"
+                  >...</span
+                >
+              } @else {
+                <button
+                  type="button"
+                  class="btn-base h-10 min-w-10 px-3 text-sm font-semibold"
+                  [class.btn-secondary]="carsResponse()!.meta.currentPage !== pageItem"
+                  [class.btn-primary]="carsResponse()!.meta.currentPage === pageItem"
+                  [attr.aria-current]="
+                    carsResponse()!.meta.currentPage === pageItem ? 'page' : null
+                  "
+                  [attr.aria-label]="'Ir a la pagina ' + pageItem"
+                  (click)="goToPage(pageItem)"
+                >
+                  {{ pageItem }}
+                </button>
+              }
+            }
+
+            <button
+              type="button"
+              appButton="secondary"
+              appButtonSize="icon"
+              aria-label="Ir a la pagina siguiente"
+              [disabled]="!carsResponse()!.meta.hasNextPage"
+              (click)="goToPage(carsResponse()!.meta.currentPage + 1)"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              >
+                <path d="m7.5 5 5 5-5 5" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              appButton="secondary"
+              appButtonSize="icon"
+              aria-label="Ir a la ultima pagina"
+              [disabled]="!carsResponse()!.meta.hasNextPage"
+              (click)="goToPage(carsResponse()!.meta.totalPages)"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              >
+                <path d="m5 5 5 5-5 5" />
+                <path d="m9 5 5 5-5 5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+</section>

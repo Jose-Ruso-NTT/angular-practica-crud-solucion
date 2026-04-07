@@ -1,0 +1,167 @@
+<section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+  <article
+    class="space-y-6 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70"
+  >
+    <div>
+      <p class="text-xs font-semibold tracking-[0.24em] text-teal-700 uppercase dark:text-teal-300">
+        Informacion general
+      </p>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        Esta sección muestra el detalle operativo del coche y la composición de sus unidades tal y
+        como llega desde el backend.
+      </p>
+    </div>
+
+    @if (car()!.carDetails?.[0]?.imageUrl) {
+      <div
+        class="aspect-video overflow-hidden rounded-3xl bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+      >
+        <img
+          [src]="car()!.carDetails?.[0]?.imageUrl"
+          [alt]="car()!.model.name"
+          class="h-full w-full object-cover object-center"
+        />
+      </div>
+    }
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div
+        class="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/80"
+      >
+        <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">Marca</p>
+        <p class="mt-2 text-lg font-semibold text-slate-950 dark:text-slate-100">
+          {{ car()!.brand.name }}
+        </p>
+      </div>
+      <div
+        class="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/80"
+      >
+        <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">Modelo</p>
+        <p class="mt-2 text-lg font-semibold text-slate-950 dark:text-slate-100">
+          {{ car()!.model.name }}
+        </p>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      @for (detail of car()!.carDetails ?? []; track detail.licensePlate) {
+        <article
+          class="rounded-3xl border border-slate-200 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-900/75"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                Matrícula
+              </p>
+              <h3 class="mt-2 text-xl font-semibold text-slate-950 dark:text-slate-100">
+                {{ detail.licensePlate }}
+              </h3>
+            </div>
+            @if (detail.availability) {
+              <span
+                class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+              >
+                Disponible
+              </span>
+            } @else {
+              <span
+                class="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              >
+                No disponible
+              </span>
+            }
+          </div>
+
+          <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div>
+              <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                Precio
+              </p>
+              <p class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ detail.price | currency: detail.currency ?? 'EUR' : 'symbol' : '1.0-0' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                Kilometraje
+              </p>
+              <p class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ detail.mileage | number: '1.0-0' }} km
+              </p>
+            </div>
+            <div>
+              <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                Fabricación
+              </p>
+              <p class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ detail.manufactureYear | number: '1.0-0' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                Matriculación
+              </p>
+              <p class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ detail.registrationDate | date }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                Color
+              </p>
+              <p class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ detail.color || 'Sin especificar' | titlecase }}
+              </p>
+            </div>
+          </div>
+
+          <p class="mt-5 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            {{ detail.description || 'Sin descripción disponible.' }}
+          </p>
+        </article>
+      }
+    </div>
+  </article>
+
+  <aside class="space-y-4">
+    <div
+      class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70"
+    >
+      <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">Resumen</p>
+      <dl class="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-300">
+        <div class="flex items-center justify-between gap-4">
+          <dt>Total de unidades</dt>
+          <dd class="font-semibold text-slate-950 dark:text-slate-100">
+            {{ car()!.total ?? car()!.carDetails?.length ?? 0 | number: '1.0-0' }}
+          </dd>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <dt>ID</dt>
+          <dd class="font-mono text-xs text-slate-500 dark:text-slate-400">
+            {{ car()!.id }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div
+      class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70"
+    >
+      <p class="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+        Documentos
+      </p>
+      <p class="mt-3 text-sm text-slate-700 dark:text-slate-300">
+        Consulta el documento actual o gestiona una nueva subida desde la subsección documental.
+      </p>
+      <a
+        [routerLink]="['../documents']"
+        queryParamsHandling="preserve"
+        appButton="secondary"
+        appButtonSize="sm"
+        class="mt-4"
+      >
+        Ir a documentos
+      </a>
+    </div>
+  </aside>
+</section>

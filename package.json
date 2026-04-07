@@ -1,0 +1,23 @@
+{
+  "name": "angular-practica-crud-solucion",
+  "private": true,
+  "packageManager": "npm@11.6.3",
+  "scripts": {
+    "prepare": "husky",
+    "lint-staged": "lint-staged",
+    "format": "npm run format --prefix frontend && npm run format --prefix backend",
+    "lint": "npm run lint --prefix frontend && npm run lint --prefix backend"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6"
+  },
+  "lint-staged": {
+    "frontend/src/**/*.{ts,html,css,scss,js,json,md}": [
+      "npm --prefix frontend exec -- prettier --write"
+    ],
+    "backend/**/*.{ts,js,json,md}": [
+      "npm --prefix backend exec -- prettier --write"
+    ]
+  }
+}

@@ -1,3 +1,199 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-transparent;
+    @apply transition;
+    @apply focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none;
+    @apply dark:focus-visible:ring-offset-slate-950;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-loading,
+  .btn-loading:disabled,
+  .btn-loading[aria-disabled='true'] {
+    @apply cursor-progress;
+  }
+
+  .btn-primary {
+    @apply bg-slate-950 font-semibold text-white;
+    @apply hover:bg-slate-800;
+    @apply disabled:bg-slate-400;
+    @apply focus-visible:ring-teal-200;
+    @apply dark:bg-teal-500 dark:text-slate-950 dark:hover:bg-teal-400 dark:disabled:bg-teal-800;
+    @apply dark:focus-visible:ring-teal-900;
+  }
+
+  .btn-secondary {
+    @apply border-slate-300 bg-white font-medium text-slate-700;
+    @apply hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950;
+    @apply disabled:border-slate-200 disabled:text-slate-400;
+    @apply focus-visible:ring-slate-200;
+    @apply dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200;
+    @apply dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-white;
+    @apply dark:disabled:border-slate-800 dark:disabled:text-slate-500;
+    @apply dark:focus-visible:ring-slate-800;
+  }
+
+  .btn-danger {
+    @apply bg-rose-600 font-semibold text-white;
+    @apply hover:bg-rose-700;
+    @apply disabled:bg-rose-300;
+    @apply focus-visible:ring-rose-200;
+    @apply dark:bg-rose-500 dark:hover:bg-rose-400 dark:disabled:bg-rose-900;
+    @apply dark:focus-visible:ring-rose-950;
+  }
+
+  .btn-danger-secondary {
+    @apply border-rose-300 bg-white font-medium text-rose-600;
+    @apply hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700;
+    @apply disabled:border-rose-200 disabled:text-rose-300;
+    @apply focus-visible:ring-rose-200;
+    @apply dark:border-rose-900 dark:bg-slate-900 dark:text-rose-300;
+    @apply dark:hover:border-rose-700 dark:hover:bg-rose-950/40 dark:hover:text-rose-200;
+    @apply dark:disabled:border-rose-950 dark:disabled:text-rose-800;
+    @apply dark:focus-visible:ring-rose-950;
+  }
+
+  .btn-ghost {
+    @apply border-transparent bg-transparent font-semibold text-slate-600;
+    @apply hover:bg-slate-100 hover:text-slate-950;
+    @apply disabled:text-slate-400;
+    @apply focus-visible:ring-slate-200;
+    @apply dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white dark:disabled:text-slate-600;
+    @apply dark:focus-visible:ring-slate-800;
+  }
+
+  .btn-md {
+    @apply px-5 py-3 text-sm;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2.5 text-sm;
+  }
+
+  .btn-xs {
+    @apply px-3 py-2 text-xs;
+  }
+
+  .btn-icon {
+    @apply h-10 w-10 p-0 text-sm;
+  }
+
+  .btn-icon-sm {
+    @apply h-8 w-8 p-0 text-sm;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-slate-700;
+    @apply dark:text-slate-300;
+  }
+
+  .form-control {
+    @apply w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 transition outline-none;
+    @apply placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100;
+    @apply disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500;
+    @apply dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500;
+    @apply dark:focus:border-teal-400 dark:focus:ring-teal-950;
+    @apply dark:disabled:bg-slate-950 dark:disabled:text-slate-500;
+  }
+
+  .form-control-file {
+    @apply block w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600 transition outline-none;
+    @apply file:mr-4 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white;
+    @apply hover:border-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100;
+    @apply disabled:cursor-not-allowed disabled:opacity-60;
+    @apply dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300;
+    @apply dark:file:bg-teal-500 dark:file:text-slate-950 dark:hover:border-slate-600;
+    @apply dark:focus:border-teal-400 dark:focus:ring-teal-950;
+  }
+
+  .form-control-error {
+    @apply border-rose-400 focus:border-rose-500 focus:ring-4 focus:ring-rose-100;
+    @apply dark:border-rose-500 dark:focus:border-rose-400 dark:focus:ring-rose-950;
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.dark body {
+  color: #e2e8f0;
+  background: #020617;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-touched,
+:where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-dirty,
+form.ng-submitted :where(input:not([type='checkbox']), select, textarea).ng-invalid {
+  border-color: #fda4af !important;
+  background-color: #fff1f2;
+  color: #881337;
+}
+
+.dark :where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-touched,
+.dark :where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-dirty,
+.dark form.ng-submitted :where(input:not([type='checkbox']), select, textarea).ng-invalid {
+  border-color: #be123c !important;
+  background-color: rgb(76 5 25 / 0.55);
+  color: #ffe4e6;
+}
+
+:where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-touched:focus,
+:where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-dirty:focus,
+form.ng-submitted :where(input:not([type='checkbox']), select, textarea).ng-invalid:focus {
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 0 4px rgb(255 228 230 / 1);
+}
+
+.dark :where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-touched:focus,
+.dark :where(input:not([type='checkbox']), select, textarea).ng-invalid.ng-dirty:focus,
+.dark form.ng-submitted :where(input:not([type='checkbox']), select, textarea).ng-invalid:focus {
+  border-color: #fb7185 !important;
+  box-shadow: 0 0 0 4px rgb(76 5 25 / 0.9);
+}
+
+.vehicle-dialog-backdrop {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.dark .vehicle-dialog-backdrop {
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.vehicle-dialog-panel {
+  max-width: 32rem;
+}
