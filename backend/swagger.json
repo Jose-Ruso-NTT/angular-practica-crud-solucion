@@ -649,7 +649,7 @@
             "description": "Uploaded file exceeds the 5 MB limit"
           },
           "415": {
-            "description": "Unsupported file type"
+            "description": "Unsupported file type. Allowed formats: pdf, txt, doc, docx, png, jpg, jpeg."
           }
         },
         "security": [
