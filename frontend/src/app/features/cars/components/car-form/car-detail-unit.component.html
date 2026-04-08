@@ -68,7 +68,13 @@
 
     <div class="space-y-2">
       <label class="form-label" [for]="'price-' + index()">Precio</label>
-      <input [id]="'price-' + index()" type="number" formControlName="price" class="form-control" />
+      <input
+        [id]="'price-' + index()"
+        type="number"
+        formControlName="price"
+        class="form-control"
+        step="0.01"
+      />
       <app-form-field-errors
         [control]="group().controls.price"
         [messages]="detailErrorMessages.price"

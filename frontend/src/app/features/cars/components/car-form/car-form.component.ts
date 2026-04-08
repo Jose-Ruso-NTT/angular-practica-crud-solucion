@@ -19,15 +19,15 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { startWith } from 'rxjs';
-import { FormFieldErrorsComponent } from '@shared/components/form-field-errors.component';
-import { InlineMessageComponent } from '@shared/components/inline-message.component';
-import { ButtonDirective } from '@shared/directives/button-directive';
-import { CAR_CURRENCIES, Car, CarDetail, CreateCarRequest } from '@shared/models/car.models';
-import { isoToLocalDateTimeInput, localDateTimeInputToIso } from '@shared/utils/date.utils';
-import { BackendErrorCode } from '@shared/utils/http-error.utils';
+import {
+  CURRENT_YEAR,
+  DUPLICATE_LICENSE_PLATE_ERROR_CODE,
+  DUPLICATE_LICENSE_PLATE_IN_REQUEST_ERROR_CODE,
+  LICENSE_PLATE_REGEX,
+  LICENSE_PLATE_SERVER_ERROR_KEYS,
+  MIN_MANUFACTURE_YEAR,
+} from '@app/features/cars/components/car-form/car-form.config';
 import { CarFormMode } from '@features/cars/car-form.types';
-import { CatalogStore } from '@features/cars/services/catalog.store';
 import { CarDetailUnitComponent } from '@features/cars/components/car-form/car-detail-unit.component';
 import {
   detailErrorMessages,
@@ -35,19 +35,23 @@ import {
   topLevelErrorMessages,
 } from '@features/cars/components/car-form/car-form-messages';
 import {
-  CURRENT_YEAR,
-  DUPLICATE_LICENSE_PLATE_ERROR_CODE,
-  DUPLICATE_LICENSE_PLATE_IN_REQUEST_ERROR_CODE,
-  LICENSE_PLATE_REGEX,
-  LICENSE_PLATE_SERVER_ERROR_KEYS,
-  integerValidator,
-  manufactureYearValidator,
-} from '@features/cars/components/car-form/car-form.constants';
-import {
   CarDetailFormGroup,
   CarFormControls,
   CarFormGroup,
 } from '@features/cars/components/car-form/car-form.models';
+import {
+  greaterThanZeroValidator,
+  integerValidator,
+  manufactureYearValidator,
+} from '@features/cars/components/car-form/car-form.validators';
+import { CatalogStore } from '@features/cars/services/catalog.store';
+import { FormFieldErrorsComponent } from '@shared/components/form-field-errors.component';
+import { InlineMessageComponent } from '@shared/components/inline-message.component';
+import { ButtonDirective } from '@shared/directives/button-directive';
+import { CAR_CURRENCIES, Car, CarDetail, CreateCarRequest } from '@shared/models/car.models';
+import { isoToLocalDateTimeInput, localDateTimeInputToIso } from '@shared/utils/date.utils';
+import { BackendErrorCode } from '@shared/utils/http-error.utils';
+import { startWith } from 'rxjs';
 
 @Component({
   selector: 'app-car-form',
@@ -173,13 +177,13 @@ export class CarFormComponent implements OnInit {
         }),
         currency: this.fb.control(detail?.currency ?? 'EUR'),
         price: this.fb.control(detail?.price ?? 1, {
-          validators: [Validators.required, Validators.min(1)],
+          validators: [Validators.required, greaterThanZeroValidator],
         }),
         manufactureYear: this.fb.control(detail?.manufactureYear ?? CURRENT_YEAR, {
           validators: [
             Validators.required,
             integerValidator,
-            Validators.min(1900),
+            Validators.min(MIN_MANUFACTURE_YEAR),
             Validators.max(CURRENT_YEAR),
           ],
         }),

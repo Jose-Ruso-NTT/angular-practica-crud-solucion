@@ -1,4 +1,7 @@
-import { CURRENT_YEAR } from '@features/cars/components/car-form/car-form.constants';
+import {
+  CURRENT_YEAR,
+  MIN_MANUFACTURE_YEAR,
+} from '@app/features/cars/components/car-form/car-form.config';
 
 export const topLevelErrorMessages = {
   brandId: {
@@ -19,12 +22,12 @@ export const detailErrorMessages = {
   },
   price: {
     required: 'El precio es obligatorio.',
-    min: 'El precio debe ser mayor que cero.',
+    greaterThanZero: 'El precio debe ser mayor que cero.',
   },
   manufactureYear: {
     integer: 'El año de fabricación debe ser un numero entero.',
     required: 'El año de fabricación es obligatorio.',
-    min: 'El año de fabricación no puede ser anterior a 1900.',
+    min: `El año de fabricación no puede ser anterior a ${MIN_MANUFACTURE_YEAR}.`,
     max: `El año de fabricación no puede ser posterior a ${CURRENT_YEAR}.`,
   },
   description: {
