@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 import { AuthApiService } from '@features/auth/auth-api.service';
 import { UserProfile } from '@shared/models/auth.models';
+import { catchError, finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStore {
@@ -80,7 +80,7 @@ export class AuthStore {
     this.user.set(null);
   }
 
-  setUser(user: UserProfile): void {
+  private setUser(user: UserProfile): void {
     this.user.set(user);
   }
 }

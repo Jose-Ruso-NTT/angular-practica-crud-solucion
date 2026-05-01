@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FeedbackStore } from '@core/stores/feedback.store';
 import { ButtonDirective } from '@shared/directives/button-directive';
 
@@ -13,6 +13,7 @@ const NOTIFICATION_TONE_CLASSES: Record<'success' | 'error' | 'info', string> = 
 @Component({
   selector: 'app-notification-center',
   imports: [ButtonDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="pointer-events-none fixed top-4 right-4 left-4 z-50 flex flex-col gap-3 sm:left-auto sm:w-full sm:max-w-sm"

@@ -1,14 +1,24 @@
-function padTimestampPart(value: number): string {
-  return value.toString().padStart(2, '0');
+import { padDatePart } from '@shared/utils/date.utils';
+
+export function formatBytes(value: number): string {
+  if (value < 1024) {
+    return `${value} B`;
+  }
+
+  if (value < 1024 * 1024) {
+    return `${(value / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function formatDownloadTimestamp(date = new Date()): string {
   const year = date.getFullYear();
-  const month = padTimestampPart(date.getMonth() + 1);
-  const day = padTimestampPart(date.getDate());
-  const hours = padTimestampPart(date.getHours());
-  const minutes = padTimestampPart(date.getMinutes());
-  const seconds = padTimestampPart(date.getSeconds());
+  const month = padDatePart(date.getMonth() + 1);
+  const day = padDatePart(date.getDate());
+  const hours = padDatePart(date.getHours());
+  const minutes = padDatePart(date.getMinutes());
+  const seconds = padDatePart(date.getSeconds());
 
   return `${year}${month}${day}-${hours}${minutes}${seconds}`;
 }

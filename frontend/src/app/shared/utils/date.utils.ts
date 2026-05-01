@@ -1,4 +1,4 @@
-function padDatePart(value: number): string {
+export function padDatePart(value: number): string {
   return value.toString().padStart(2, '0');
 }
 
@@ -47,14 +47,3 @@ export function localDateTimeInputToIso(value: string): string {
   ).toISOString();
 }
 
-export function formatBytes(value: number): string {
-  if (value < 1024) {
-    return `${value} B`;
-  }
-
-  if (value < 1024 * 1024) {
-    return `${(value / 1024).toFixed(1)} KB`;
-  }
-
-  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
-}

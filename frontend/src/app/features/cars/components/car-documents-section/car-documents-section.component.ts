@@ -21,8 +21,7 @@ import { ButtonDirective } from '@shared/directives/button-directive';
 import { IfAdminDirective } from '@shared/directives/if-admin-directive';
 import { CarDocumentTypeLabelPipe } from '@shared/pipes/car-document-type-label.pipe';
 import { CAR_DOCUMENT_TYPES, CarDocument, CarDocumentType } from '@shared/models/car.models';
-import { formatBytes } from '@shared/utils/date.utils';
-import { downloadBlob } from '@shared/utils/file-download.utils';
+import { downloadBlob, formatBytes } from '@shared/utils/file-download.utils';
 import { getHttpErrorMessage, hasHttpStatus } from '@shared/utils/http-error.utils';
 import { CarDocumentsApiService } from '@features/cars/services/car-documents-api.service';
 import {

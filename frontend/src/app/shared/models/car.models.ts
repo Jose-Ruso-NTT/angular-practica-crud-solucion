@@ -22,9 +22,9 @@ export const CAR_DOCUMENT_TYPES = [
 
 export const CAR_DOCUMENT_TYPE_LABELS: Record<(typeof CAR_DOCUMENT_TYPES)[number], string> = {
   invoice: 'Factura',
-  inspection: 'Inspeccion',
+  inspection: 'Inspección',
   insurance: 'Seguro',
-  registration: 'Documentacion',
+  registration: 'Documentación',
   other: 'Otro',
 };
 

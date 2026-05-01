@@ -12,7 +12,7 @@ import { FeedbackStore } from '@core/stores/feedback.store';
 
 const RETRY_AFTER_REFRESH = new HttpContextToken<boolean>(() => false);
 
-const AUTH_SESSION_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout'];
+const SKIP_REFRESH_PATHS = ['/auth/login', '/auth/me', '/auth/refresh', '/auth/logout'];
 
 export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -20,8 +20,7 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const feedbackStore = inject(FeedbackStore);
 
   const isApiRequest = req.url.startsWith(API_BASE_URL);
-  const isSessionEndpoint = AUTH_SESSION_PATHS.some((path) => req.url.includes(path));
-  const isMeEndpoint = req.url.includes('/auth/me');
+  const isSkippedEndpoint = SKIP_REFRESH_PATHS.some((path) => req.url.includes(path));
 
   return next(req).pipe(
     catchError((error: unknown) => {
@@ -29,8 +28,7 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
         !(error instanceof HttpErrorResponse) ||
         error.status !== 401 ||
         !isApiRequest ||
-        isSessionEndpoint ||
-        isMeEndpoint ||
+        isSkippedEndpoint ||
         req.context.get(RETRY_AFTER_REFRESH)
       ) {
         return throwError(() => error);

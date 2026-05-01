@@ -11,161 +11,87 @@ export type BackendErrorCode =
 
 interface BackendErrorPayload {
   statusCode?: number;
-  error?: string;
   code?: BackendErrorCode;
   message?: unknown;
-  details?: {
-    licensePlate?: string;
-    brandName?: string;
-    modelName?: string;
-    maxFileSizeBytes?: number;
-    allowedMimeTypes?: string[];
-    allowedFormats?: string[];
-    receivedMimeType?: string;
-    [key: string]: unknown;
-  };
-  licensePlate?: string;
-  brandName?: string;
-  modelName?: string;
+  details?: Record<string, unknown>;
 }
 
+const CONFLICT_MESSAGES: Partial<Record<BackendErrorCode, string>> = {
+  CAR_DUPLICATE_LICENSE_PLATE: 'La matricula ya esta registrada en otro coche.',
+  CAR_DUPLICATE_LICENSE_PLATE_IN_REQUEST: 'La matricula esta repetida en otra unidad del formulario.',
+};
+
+const STATUS_MESSAGES: Partial<Record<number, string>> = {
+  0: 'No se ha podido conectar con el backend.',
+  401: 'La sesión no es valida. Inicia sesión de nuevo.',
+  403: 'No tienes permisos para realizar esta acción.',
+  404: 'No se ha encontrado el recurso solicitado.',
+};
+
 function getPayloadDetail(payload: BackendErrorPayload, key: string): unknown {
-  return payload.details?.[key] ?? payload[key as keyof BackendErrorPayload];
+  return payload.details?.[key] ?? (payload as Record<string, unknown>)[key];
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes < 1024 * 1024) {
-    return `${Math.round(bytes / 1024)} KB`;
-  }
-
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(bytes % (1024 * 1024) === 0 ? 0 : 1)} MB`;
 }
 
 function extractBackendPayload(payload: unknown): BackendErrorPayload | null {
-  if (!payload || typeof payload !== 'object') {
-    return null;
-  }
-
+  if (!payload || typeof payload !== 'object') return null;
   return payload as BackendErrorPayload;
 }
 
 function extractBackendMessage(payload: unknown): string | null {
-  if (!payload) {
-    return null;
-  }
+  if (typeof payload === 'string') return payload;
+  if (!payload || typeof payload !== 'object' || !('message' in payload)) return null;
 
-  if (typeof payload === 'string') {
-    return payload;
-  }
-
-  if (typeof payload === 'object' && 'message' in payload) {
-    const value = (payload as { message?: unknown }).message;
-    if (Array.isArray(value)) {
-      return value.filter((item): item is string => typeof item === 'string').join(' ');
-    }
-
-    if (typeof value === 'string') {
-      return value;
-    }
-  }
+  const value = (payload as { message?: unknown }).message;
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string').join(' ') || null;
 
   return null;
 }
 
 function translateConflictMessage(payload: BackendErrorPayload): string | null {
-  if (payload.statusCode !== 409 || !payload.code) {
-    return null;
-  }
+  if (payload.statusCode !== 409 || !payload.code) return null;
 
   if (payload.code === 'CAR_DUPLICATE_BRAND_MODEL') {
     const brandName = getPayloadDetail(payload, 'brandName');
     const modelName = getPayloadDetail(payload, 'modelName');
-
-    if (typeof brandName === 'string' && typeof modelName === 'string') {
-      return `Ya existe un coche registrado para ${brandName} ${modelName}. Solo puede existir un coche por combinación de marca y modelo.`;
-    }
-
-    return 'Ya existe un coche registrado con esa combinación de marca y modelo.';
+    return typeof brandName === 'string' && typeof modelName === 'string'
+      ? `Ya existe un coche registrado para ${brandName} ${modelName}. Solo puede existir un coche por combinación de marca y modelo.`
+      : 'Ya existe un coche registrado con esa combinación de marca y modelo.';
   }
 
-  if (payload.code === 'CAR_DUPLICATE_LICENSE_PLATE') {
-    return 'La matricula ya esta registrada en otro coche.';
+  return CONFLICT_MESSAGES[payload.code] ?? null;
+}
+
+function translateFileTooLargeMessage(payload: BackendErrorPayload): string {
+  const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
+  return typeof maxFileSizeBytes === 'number'
+    ? `El archivo supera el tamaño máximo permitido de ${formatFileSize(maxFileSizeBytes)}.`
+    : 'El archivo supera el tamaño máximo permitido.';
+}
+
+function translateUnsupportedTypeMessage(payload: BackendErrorPayload): string {
+  const allowedFormats = getPayloadDetail(payload, 'allowedFormats');
+  if (Array.isArray(allowedFormats) && allowedFormats.every((f): f is string => typeof f === 'string')) {
+    return `El tipo de archivo no es compatible. Formatos permitidos: ${allowedFormats.map((f) => f.toUpperCase()).join(', ')}.`;
   }
-
-  if (payload.code === 'CAR_DUPLICATE_LICENSE_PLATE_IN_REQUEST') {
-    return 'La matricula esta repetida en otra unidad del formulario.';
-  }
-
-  if (payload.code === 'DOCUMENT_FILE_TOO_LARGE') {
-    const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
-
-    if (typeof maxFileSizeBytes === 'number') {
-      return `El archivo supera el tamaño máximo permitido de ${formatFileSize(maxFileSizeBytes)}.`;
-    }
-
-    return 'El archivo supera el tamaño máximo permitido.';
-  }
-
-  if (payload.code === 'DOCUMENT_UPLOAD_ERROR') {
-    return 'No se ha podido procesar el archivo subido.';
-  }
-
-  return null;
+  return 'El tipo de archivo no es compatible. Usa un formato permitido.';
 }
 
 function translateDocumentUploadMessage(payload: BackendErrorPayload): string | null {
-  if (payload.code === 'DOCUMENT_FILE_REQUIRED') {
-    return 'Selecciona un archivo antes de subirlo.';
-  }
-
-  if (payload.code === 'DOCUMENT_FILE_TOO_LARGE') {
-    const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
-
-    if (typeof maxFileSizeBytes === 'number') {
-      return `El archivo supera el tamaño máximo permitido de ${formatFileSize(maxFileSizeBytes)}.`;
-    }
-
-    return 'El archivo supera el tamaño máximo permitido.';
-  }
-
-  if (payload.code === 'DOCUMENT_UPLOAD_ERROR') {
-    return 'No se ha podido procesar el archivo subido.';
-  }
-
-  if (payload.code === 'DOCUMENT_UNSUPPORTED_TYPE') {
-    const allowedFormats = getPayloadDetail(payload, 'allowedFormats');
-
-    if (Array.isArray(allowedFormats) && allowedFormats.every((format) => typeof format === 'string')) {
-      return `El tipo de archivo no es compatible. Formatos permitidos: ${allowedFormats
-        .map((format) => format.toUpperCase())
-        .join(', ')}.`;
-    }
-
-    return 'El tipo de archivo no es compatible. Usa un formato permitido.';
-  }
-
-  if (payload.statusCode === 415) {
-    return 'El tipo de archivo no es compatible. Usa un formato permitido.';
-  }
-
-  if (payload.statusCode === 413) {
-    const maxFileSizeBytes = getPayloadDetail(payload, 'maxFileSizeBytes');
-
-    if (typeof maxFileSizeBytes === 'number') {
-      return `El archivo supera el tamaño máximo permitido de ${formatFileSize(maxFileSizeBytes)}.`;
-    }
-
-    return 'El archivo supera el tamaño máximo permitido.';
-  }
-
+  if (payload.code === 'DOCUMENT_FILE_REQUIRED') return 'Selecciona un archivo antes de subirlo.';
+  if (payload.code === 'DOCUMENT_UPLOAD_ERROR') return 'No se ha podido procesar el archivo subido.';
+  if (payload.code === 'DOCUMENT_FILE_TOO_LARGE' || payload.statusCode === 413) return translateFileTooLargeMessage(payload);
+  if (payload.code === 'DOCUMENT_UNSUPPORTED_TYPE' || payload.statusCode === 415) return translateUnsupportedTypeMessage(payload);
   return null;
 }
 
 export function getHttpErrorPayload(error: unknown): BackendErrorPayload | null {
-  if (!(error instanceof HttpErrorResponse)) {
-    return null;
-  }
-
+  if (!(error instanceof HttpErrorResponse)) return null;
   return extractBackendPayload(error.error);
 }
 
@@ -176,13 +102,11 @@ export function getHttpErrorCode(error: unknown): BackendErrorCode | null {
 export function getHttpErrorDetail<T = unknown>(error: unknown, key: string): T | null {
   const payload = getHttpErrorPayload(error);
   const value = payload ? getPayloadDetail(payload, key) : null;
-
   return (value as T | null) ?? null;
 }
 
 export function getHttpErrorLicensePlate(error: unknown): string | null {
   const licensePlate = getHttpErrorDetail(error, 'licensePlate');
-
   return typeof licensePlate === 'string' ? licensePlate : null;
 }
 
@@ -190,49 +114,19 @@ export function getHttpErrorMessage(
   error: unknown,
   fallback = 'Ha ocurrido un error inesperado.',
 ): string {
-  if (!(error instanceof HttpErrorResponse)) {
-    return fallback;
-  }
+  if (!(error instanceof HttpErrorResponse)) return fallback;
 
-  const backendPayload = extractBackendPayload(error.error);
-  const translatedConflictMessage = backendPayload
-    ? translateConflictMessage(backendPayload)
+  const payload = extractBackendPayload(error.error);
+  const translated = payload
+    ? (translateConflictMessage(payload) ?? translateDocumentUploadMessage(payload))
     : null;
 
-  if (translatedConflictMessage) {
-    return translatedConflictMessage;
-  }
-
-  const translatedDocumentUploadMessage = backendPayload
-    ? translateDocumentUploadMessage(backendPayload)
-    : null;
-
-  if (translatedDocumentUploadMessage) {
-    return translatedDocumentUploadMessage;
-  }
+  if (translated) return translated;
 
   const backendMessage = extractBackendMessage(error.error);
-  if (backendMessage) {
-    return backendMessage;
-  }
+  if (backendMessage) return backendMessage;
 
-  if (error.status === 0) {
-    return 'No se ha podido conectar con el backend.';
-  }
-
-  if (error.status === 401) {
-    return 'La sesión no es valida. Inicia sesión de nuevo.';
-  }
-
-  if (error.status === 403) {
-    return 'No tienes permisos para realizar esta acción.';
-  }
-
-  if (error.status === 404) {
-    return 'No se ha encontrado el recurso solicitado.';
-  }
-
-  return fallback;
+  return STATUS_MESSAGES[error.status] ?? fallback;
 }
 
 export function hasHttpStatus(error: unknown, status: number): boolean {
