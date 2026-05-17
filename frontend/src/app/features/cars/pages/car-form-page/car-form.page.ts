@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { FeedbackStore } from '@core/stores/feedback.store';
 import { Car, CreateCarRequest } from '@shared/models/car.models';
 import {
@@ -80,18 +80,17 @@ export class CarFormPage implements OnInit {
             return of(null);
           }
 
-          return this.carsApi.getCarById(id);
+          return this.carsApi.getCarById(id).pipe(
+            catchError((error: unknown) => {
+              this.errorMessage.set(getHttpErrorMessage(error, 'No se ha podido cargar el coche.'));
+              return of(null);
+            }),
+          );
         }),
       )
-      .subscribe({
-        next: (car) => {
-          this.loading.set(false);
-          this.car.set(car);
-        },
-        error: (error: unknown) => {
-          this.loading.set(false);
-          this.errorMessage.set(getHttpErrorMessage(error, 'No se ha podido cargar el coche.'));
-        },
+      .subscribe((car) => {
+        this.loading.set(false);
+        this.car.set(car);
       });
   }
 

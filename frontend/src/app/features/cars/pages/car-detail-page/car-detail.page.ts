@@ -24,7 +24,7 @@ import { IfAdminDirective } from '@shared/directives/if-admin-directive';
 import { Car } from '@shared/models/car.models';
 import { getHttpErrorMessage } from '@shared/utils/http-error.utils';
 import { of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-car-detail-page',
@@ -47,8 +47,8 @@ export class CarDetailPage implements OnInit {
   private readonly dialog = inject(Dialog);
   private readonly feedbackStore = inject(FeedbackStore);
 
-  readonly loading = signal(true);
-  readonly errorMessage = signal<string | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly errorMessage = signal<string | null>(null);
   readonly car = signal<Car | null>(null);
 
   ngOnInit(): void {
@@ -65,18 +65,19 @@ export class CarDetailPage implements OnInit {
           this.errorMessage.set(null);
           this.car.set(null);
 
-          return id ? this.carsApi.getCarById(id) : of(null);
+          return (id ? this.carsApi.getCarById(id) : of<Car | null>(null)).pipe(
+            catchError((error: unknown) => {
+              this.errorMessage.set(
+                getHttpErrorMessage(error, 'No se ha podido cargar el detalle.'),
+              );
+              return of(null);
+            }),
+          );
         }),
       )
-      .subscribe({
-        next: (car) => {
-          this.loading.set(false);
-          this.car.set(car);
-        },
-        error: (error: unknown) => {
-          this.loading.set(false);
-          this.errorMessage.set(getHttpErrorMessage(error, 'No se ha podido cargar el detalle.'));
-        },
+      .subscribe((car) => {
+        this.loading.set(false);
+        this.car.set(car);
       });
   }
 

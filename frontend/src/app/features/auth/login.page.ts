@@ -1,6 +1,6 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
 import { FeedbackStore } from '@core/stores/feedback.store';
@@ -12,9 +12,10 @@ import { getHttpErrorMessage } from '@shared/utils/http-error.utils';
   selector: 'app-login-page',
   imports: [ReactiveFormsModule, ButtonDirective],
   templateUrl: './login.page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly authStore = inject(AuthStore);
   private readonly feedbackStore = inject(FeedbackStore);
   private readonly router = inject(Router);
@@ -24,11 +25,11 @@ export class LoginPage {
   protected readonly pending = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
-  protected readonly form: LoginFormGroup = this.fb.nonNullable.group<LoginFormControls>({
-    email: this.fb.nonNullable.control('admin@example.com', {
+  protected readonly form: LoginFormGroup = this.fb.group<LoginFormControls>({
+    email: this.fb.control('admin@example.com', {
       validators: [Validators.required, Validators.email],
     }),
-    password: this.fb.nonNullable.control('admin123', { validators: [Validators.required] }),
+    password: this.fb.control('admin123', { validators: [Validators.required] }),
   });
 
   protected submit(): void {
